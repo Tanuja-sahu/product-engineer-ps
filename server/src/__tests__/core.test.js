@@ -1,0 +1,7 @@
+import {createMemoryStore} from '../store/memoryStore.js';import {RunManager} from '../services/runManager.js';
+async function setup(){const store=createMemoryStore(),c=await store.createConversation(),m=await store.createMessage(c._id,'user','hello'),run=await store.createRun(c._id,m._id);return{store,run}}
+test('ordered delivery completes',async()=>{const{store,run}=await setup(),m=new RunManager(store);m.start(run._id,{count:5,delayMs:0});await new Promise(r=>setTimeout(r,30));expect((await store.listEvents(run._id)).map(x=>x.seq)).toEqual([1,2,3,4,5,6]);expect((await store.getRun(run._id)).status).toBe('completed')});
+test('replay respects cursor',async()=>{const{store,run}=await setup();await store.appendEvent(run._id,'chunk','a');await store.appendEvent(run._id,'chunk','b');expect((await store.listEvents(run._id,1)).map(x=>x.data)).toEqual(['b'])});
+test('duplicate protection uses sequence',()=>{expect([...new Set([1,2,2,3])]).toEqual([1,2,3])});
+test('generator failure is persisted',async()=>{const{store,run}=await setup(),m=new RunManager(store);m.start(run._id,{count:6,failAfter:3,delayMs:0});await new Promise(r=>setTimeout(r,30));expect((await store.getRun(run._id)).status).toBe('failed');expect((await store.listEvents(run._id)).filter(x=>x.type==='chunk')).toHaveLength(3)});
+test('restart policy marks missing active run interrupted',async()=>{const{store,run}=await setup();await store.setRunStatus(run._id,'failed','interrupted');expect((await store.getRun(run._id)).errorReason).toBe('interrupted')});

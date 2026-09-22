@@ -1,0 +1,1 @@
+export function writeSse(res,e){res.write(`id: ${e.seq}\nevent: ${e.type}\ndata: ${JSON.stringify({text:e.data,seq:e.seq})}\n\n`)} export function invalid(res){res.write('event: cursor_invalid\ndata: {"text":"cursor_invalid"}\n\n')}

@@ -1,0 +1,6 @@
+import mongoose from 'mongoose';
+const conversationSchema=new mongoose.Schema({createdAt:{type:Date,default:Date.now}});
+const messageSchema=new mongoose.Schema({conversationId:{type:mongoose.Schema.Types.ObjectId,required:true},role:{type:String,required:true},content:{type:String,required:true},createdAt:{type:Date,default:Date.now}});
+const runSchema=new mongoose.Schema({conversationId:{type:mongoose.Schema.Types.ObjectId,required:true},userMessageId:{type:mongoose.Schema.Types.ObjectId,required:true},status:{type:String,enum:['running','completed','failed'],default:'running'},errorReason:String,createdAt:{type:Date,default:Date.now},updatedAt:{type:Date,default:Date.now}});
+const eventSchema=new mongoose.Schema({runId:{type:mongoose.Schema.Types.ObjectId,required:true},seq:{type:Number,required:true},type:{type:String,enum:['chunk','completed','failed'],required:true},data:{type:String,default:''},createdAt:{type:Date,default:Date.now}}); eventSchema.index({runId:1,seq:1},{unique:true});
+export const Conversation=mongoose.model('Conversation',conversationSchema); export const Message=mongoose.model('Message',messageSchema); export const Run=mongoose.model('Run',runSchema); export const Event=mongoose.model('Event',eventSchema);

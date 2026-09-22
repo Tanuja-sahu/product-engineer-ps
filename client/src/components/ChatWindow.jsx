@@ -1,0 +1,1 @@
+import ConnectionBadge from './ConnectionBadge.jsx';export default function ChatWindow({status,text,error}){return <section className="card"><header><b>Assistant</b><ConnectionBadge status={status}/></header><div className="message"><div className="avatar">AI</div><div>{text||'Waiting for a response…'}{error&&<small className="error">{error}</small>}</div></div></section>}
